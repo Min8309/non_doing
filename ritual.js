@@ -14,7 +14,7 @@ function ritualTranslate(){const c=ritualCopy[language];const ids={openRitual:'e
 function resizeCosmos(){cw=innerWidth;ch=innerHeight;const dpr=Math.min(devicePixelRatio||1,2);cosmos.width=Math.round(cw*dpr);cosmos.height=Math.round(ch*dpr);space.setTransform(dpr,0,0,dpr,0,0)}
 window.addEventListener('resize',resizeCosmos);
 document.getElementById('language').addEventListener('click',ritualTranslate);
-document.getElementById('openRitual').addEventListener('click',()=>{ritualTranslate();ritualDialog.showModal()});
+document.getElementById('openRitual').addEventListener('click',()=>{if(window.requestRoomSeat){window.requestRoomSeat();return;}ritualTranslate();ritualDialog.showModal()});
 function clearWords(){thought='';thoughtInput.value='';document.getElementById('thoughtCount').textContent='0 / 140';document.getElementById('beginRitual').disabled=true}
 ritualDialog.addEventListener('close',()=>{if(!running)clearWords()});
 document.getElementById('closeRitual').addEventListener('click',()=>ritualDialog.close());
