@@ -6,3 +6,5 @@ dist/
 !.env.example
 
 room-scene.bundle.js
+
+starlight.bundle.js

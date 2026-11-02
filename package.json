@@ -12,7 +12,7 @@
     "build:css": "tailwindcss -i styles/tailwind.css -o tailwind.css --minify",
     "build": "npm run build:css && node scripts/build.mjs",
     "dev": "python3 -m http.server 8000 --bind 127.0.0.1",
-    "test": "node tests/letters.test.mjs && node tests/letter-server.test.mjs && node tests/room-navigation.test.mjs"
+    "test": "node tests/letters.test.mjs && node tests/letter-server.test.mjs && node tests/room-navigation.test.mjs && node tests/starfield-motion.test.mjs"
   },
   "dependencies": {
     "three": "0.180.0"
