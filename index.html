@@ -1,704 +1,124 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>마음 비우기 - Mind Drift</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600&display=swap');
-    
-    * {
-      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      user-select: none;
-    }
-
-    body, html {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      background-color: #030712;
-      color: #f3f4f6;
-    }
-
-    /* 캔버스 기본 설정 */
-    canvas {
-      display: block;
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 1;
-    }
-
-    /* 은은한 네온 글로우 */
-    .glow-star {
-      box-shadow: 0 0 25px rgba(147, 197, 253, 0.25);
-    }
-
-    /* 커스텀 라디오/토글 버튼 트랜지션 */
-    .mode-btn {
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .mode-btn.active {
-      background: rgba(255, 255, 255, 0.15);
-      border-color: rgba(255, 255, 255, 0.4);
-      color: #ffffff;
-      box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#d9ded2">
+<meta name="description" content="비 오는 툇마루. 해야 할 일도, 잘해야 할 일도 없는 작은 쉼터. Non-Doing.">
+<title>Non-Doing (논두잉 / 無爲)</title>
+<style>
+:root{color-scheme:light;--ink:#314139;--soft:#647368;--paper:#f2f1e7}*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;background:#d9ded2}body{font-family:Arial,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;color:var(--ink);overflow:hidden}button,a{-webkit-tap-highlight-color:transparent}button{font:inherit;color:inherit;cursor:pointer;touch-action:manipulation}button:focus-visible,a:focus-visible{outline:2px solid #697d64;outline-offset:5px}button{border:0;background:none;min-width:44px;min-height:44px}header{position:absolute;z-index:3;top:0;left:0;width:100%;display:flex;align-items:center;justify-content:space-between;padding:28px 4.2%;padding-top:max(28px,env(safe-area-inset-top));gap:12px}.brand{text-decoration:none;color:inherit;display:flex;align-items:center;gap:14px}.mark{font-family:serif;font-size:34px;font-weight:400;line-height:1}.brand-name{font-size:12px;letter-spacing:2.3px}.brand-sub{display:block;font-size:9px;letter-spacing:2px;margin-top:6px;color:var(--soft)}nav{display:flex;gap:12px;align-items:center}.language{font-size:11px;letter-spacing:1px}.sound{display:flex;align-items:center;gap:9px;border:1px solid #53654c35;border-radius:30px;padding:0 18px;font-size:11px;background:#f2f1e766;backdrop-filter:blur(12px)}.sound svg{width:15px;height:15px}.sound[aria-pressed=true] .mute-line{display:none}main{position:relative;width:100%;height:100%;height:100dvh;isolation:isolate}.landscape{position:absolute;inset:0;width:100%;height:100%;z-index:-3}.scene-wash{position:absolute;inset:0;z-index:-2;background:linear-gradient(180deg,#edf0e78f,transparent 38%,transparent 80%,#171e1a33);pointer-events:none}#rain{position:absolute;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none}.introduction{position:absolute;top:20%;left:0;width:100%;text-align:center;padding:0 24px;pointer-events:none}.eyebrow{font-size:10px;letter-spacing:3.7px;color:#63725f;margin:0 0 22px}.introduction h1{word-break:keep-all;font-family:Georgia,'Noto Serif KR','Batang',serif;font-weight:400;font-size:clamp(30px,3.4vw,51px);letter-spacing:-1.5px;line-height:1.5;margin:0}.introduction .description{font-size:12px;font-weight:400;line-height:2.1;color:#5f6f61;margin:18px 0 0;letter-spacing:.3px}.quiet-note{position:absolute;top:57%;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:9px;color:#536b59;font-size:10px;letter-spacing:1px;white-space:nowrap}.quiet-note i{display:block;width:5px;height:5px;background:#7e9673;border-radius:50%}.bottom{position:absolute;bottom:max(28px,env(safe-area-inset-bottom));left:4.2%;right:4.2%;display:flex;align-items:flex-end;justify-content:space-between;gap:20px;color:#eeeadc}.place{font-family:Georgia,'Batang',serif;font-size:17px;letter-spacing:.4px}.place span{display:block;font-family:Arial,sans-serif;font-size:9px;letter-spacing:2px;color:#c3c7b4;margin-top:9px}.small-note{text-align:center;font-size:10px;line-height:1.9;letter-spacing:.5px;color:#d7dacb;position:absolute;left:50%;transform:translateX(-50%);bottom:1px}.share{display:flex;align-items:center;gap:9px;border-bottom:1px solid #d7dacb50;padding:0 0 0 8px;font-size:11px;color:#eeeadc}.share svg{width:14px;height:14px}.sound-hint{position:absolute;top:calc(100% + 10px);right:0;font-size:10px;color:#56644e;white-space:nowrap;pointer-events:none}.controls{position:relative}.view-toggle{position:fixed;z-index:5;right:4.2%;bottom:100px;color:#eee9d9;font-size:10px;letter-spacing:.4px;border:1px solid #eee9d930;border-radius:30px;padding:0 14px;background:#34433345;backdrop-filter:blur(8px)}header,.introduction,.quiet-note,.bottom,.stillness{transition:opacity 1s ease}.immersive header,.immersive .introduction,.immersive .quiet-note,.immersive .bottom,.immersive .stillness{opacity:0;pointer-events:none;visibility:hidden}.immersive .view-toggle{opacity:.3}.immersive .view-toggle:hover,.immersive .view-toggle:focus-visible{opacity:1}.neighbors{opacity:.85}.neighbor-note{font-size:9px;letter-spacing:.4px;color:#d7dacb99;margin-top:8px}@media(max-width:600px){.view-toggle{right:22px;bottom:90px}}.toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);max-width:calc(100% - 32px);width:max-content;padding:14px 22px;border:1px solid #e7e7d75e;border-radius:12px;background:#f2f1e7ed;color:#314139;font-size:12px;line-height:1.8;z-index:9;box-shadow:0 8px 40px #0001}.toast[hidden]{display:none}.stillness{position:absolute;bottom:15%;right:10%;color:#c5bda1;font-family:serif;font-size:11px;letter-spacing:5px;writing-mode:vertical-rl;opacity:.7} @media(max-width:600px){header{padding:22px 20px;padding-top:max(22px,env(safe-area-inset-top))}.brand{gap:9px}.mark{font-size:29px}.brand-name{font-size:10px;letter-spacing:1.5px}.brand-sub{font-size:8px;letter-spacing:1px}nav{gap:3px}.sound{padding:0 12px;font-size:10px;gap:6px}.introduction{top:22%}.introduction h1{word-break:keep-all;font-size:32px;letter-spacing:-1.1px}.eyebrow{font-size:8px;letter-spacing:2.8px;margin-bottom:20px}.introduction .description{font-size:11px;line-height:2.2;margin-top:18px}.quiet-note{top:56%;font-size:9px}.bottom{left:22px;right:22px;bottom:max(24px,env(safe-area-inset-bottom))}.place{font-size:14px}.place span{font-size:8px;letter-spacing:1px}.small-note{display:none}.share{font-size:10px}.stillness{right:9%;bottom:16%;font-size:10px}.sound-hint{font-size:9px;top:calc(100% + 8px)}}@media(max-height:500px){header{padding-top:12px}.introduction{top:24%}.introduction h1{word-break:keep-all;font-size:28px}.eyebrow{margin-bottom:8px}.introduction .description{margin-top:8px}.quiet-note{display:none}.bottom{bottom:14px}.stillness{display:none}}@media(prefers-reduced-motion:reduce){#rain{opacity:.3}}
+</style>
+<link rel="stylesheet" href="tailwind.css">
+<link rel="stylesheet" href="ritual.css">
 </head>
-<body class="relative flex items-center justify-center min-h-screen">
-
-  <!-- 배경 캔버스 -->
-  <canvas id="universeCanvas"></canvas>
-
-  <!-- 상단 컨트롤러 (음소거 토글 & 리셋) -->
-  <header class="absolute top-6 left-0 right-0 z-20 flex justify-between items-center px-6 md:px-12 max-w-5xl mx-auto w-full pointer-events-none">
-    <div class="flex items-center space-x-2 text-xs md:text-sm tracking-widest text-slate-400/80 uppercase font-light pointer-events-auto">
-      <span class="inline-block w-2 h-2 rounded-full bg-indigo-400 animate-ping mr-1"></span>
-      Mind Drift
-    </div>
-
-    <div class="flex items-center space-x-3 pointer-events-auto">
-      <button id="soundToggleBtn" class="px-3.5 py-1.5 rounded-full text-xs text-slate-300 bg-slate-900/60 backdrop-blur-md border border-slate-700/50 hover:bg-slate-800 transition flex items-center space-x-1.5 shadow-lg">
-        <svg id="soundIconOn" class="w-3.5 h-3.5 hidden text-indigo-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path></svg>
-        <svg id="soundIconOff" class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15zM17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"></path></svg>
-        <span id="soundStatusText">소리 켜기</span>
-      </button>
-    </div>
-  </header>
-
-  <!-- 초기 입력 UI 카드 -->
-  <main id="inputCard" class="relative z-10 w-full max-w-lg px-6 transition-all duration-1000 ease-out transform translate-y-0 opacity-100">
-    <div class="bg-slate-900/40 backdrop-blur-xl border border-white/10 p-8 md:p-10 rounded-3xl shadow-2xl text-center glow-star">
-      
-      <div class="mb-6 space-y-2">
-        <span class="text-xs uppercase tracking-widest text-indigo-300/80 font-medium">Digital Sanctuary</span>
-        <h1 class="text-xl md:text-2xl font-light text-slate-100 leading-relaxed">
-          지금 마음을 무겁게 짓누르는<br>생각이 있나요?
-        </h1>
-        <p class="text-xs text-slate-400/90 font-light pt-1">
-          여기에 적어두면 깊은 우주 속으로 조용히 흘려보내 드립니다.
-        </p>
-      </div>
-
-      <!-- 오브젝트 형태 선택기 -->
-      <div class="flex justify-center space-x-2 mb-6">
-        <button type="button" id="typeStar" class="mode-btn active px-4 py-1.5 rounded-full text-xs font-light border border-white/10 bg-white/5 text-slate-300 hover:text-white flex items-center space-x-1.5">
-          <span>✨</span>
-          <span>밤하늘의 별빛</span>
-        </button>
-        <button type="button" id="typePebble" class="mode-btn px-4 py-1.5 rounded-full text-xs font-light border border-white/10 bg-white/5 text-slate-400 hover:text-white flex items-center space-x-1.5">
-          <span>🪨</span>
-          <span>여울의 조약돌</span>
-        </button>
-      </div>
-
-      <!-- 입력창 -->
-      <div class="relative mb-6">
-        <textarea 
-          id="thoughtInput" 
-          rows="3" 
-          maxlength="140"
-          placeholder="예: 내일 발표가 두렵다, 남들과 비교되어 불안하다, 놓지 못하는 과거의 실수..." 
-          class="w-full bg-black/40 text-slate-200 placeholder-slate-500 text-sm md:text-base rounded-2xl p-4 border border-white/10 focus:outline-none focus:border-indigo-400/50 focus:ring-1 focus:ring-indigo-400/50 transition resize-none selection:bg-indigo-500 selection:text-white"
-        ></textarea>
-        <div id="charCount" class="absolute bottom-3 right-4 text-[10px] text-slate-500">0 / 140</div>
-      </div>
-
-      <!-- 흘려보내기 버튼 -->
-      <button 
-        id="releaseBtn" 
-        class="w-full py-3.5 px-6 rounded-2xl text-sm font-medium tracking-wide bg-gradient-to-r from-indigo-500/80 via-purple-500/80 to-blue-500/80 hover:from-indigo-500 hover:via-purple-500 hover:to-blue-500 text-white shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40 transition-all duration-300 transform active:scale-[0.98] border border-white/20"
-      >
-        마음에서 흘려보내기
-      </button>
-
-      <div class="mt-4 text-[11px] text-slate-500 font-light">
-        입력한 내용은 어디에도 저장되지 않고 화면 속에서 완전히 소멸합니다.
-      </div>
-    </div>
-  </main>
-
-  <!-- 명상 및 호흡 안내 UI (애니메이션 중 노출) -->
-  <section id="meditationOverlay" class="absolute inset-0 z-20 flex flex-col items-center justify-between py-12 md:py-16 pointer-events-none opacity-0 transition-opacity duration-1000 ease-in-out">
-    <!-- 상단 명상 카피 -->
-    <div class="text-center space-y-2 mt-8 px-6">
-      <div id="timerText" class="text-xs tracking-widest text-indigo-300/80 font-mono">60s</div>
-      <h2 id="breathingGuideText" class="text-lg md:text-xl font-light text-slate-200 tracking-wide transition-opacity duration-700">
-        천천히 숨을 깊게 들이쉬세요...
-      </h2>
-    </div>
-
-    <!-- 하단 호흡 리듬 펄스 인디케이터 -->
-    <div class="text-center space-y-3 mb-6 px-6">
-      <div id="subMessageText" class="text-xs md:text-sm font-light text-slate-400 max-w-sm mx-auto leading-relaxed transition-all duration-700">
-        멀어지는 생각을 바라보며 마음에 깃든 긴장을 풀어보세요.
-      </div>
-      <div class="flex items-center justify-center space-x-2 text-[10px] text-slate-500">
-        <span class="inline-block w-1.5 h-1.5 rounded-full bg-slate-500 animate-pulse"></span>
-        <span>이 생각은 당신의 전부가 아닙니다</span>
-      </div>
-    </div>
-  </section>
-
-  <!-- 완료 후 재시작 모달 -->
-  <aside id="completionModal" class="absolute z-30 max-w-sm px-6 text-center opacity-0 pointer-events-none transition-all duration-1000 transform scale-95">
-    <div class="bg-slate-900/60 backdrop-blur-xl border border-white/10 p-8 rounded-3xl shadow-2xl">
-      <div class="w-12 h-12 mx-auto mb-4 rounded-full bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center text-xl">
-        🕊️
-      </div>
-      <h3 class="text-lg font-light text-white mb-2">생각이 우주로 흩어졌습니다</h3>
-      <p class="text-xs text-slate-300 font-light leading-relaxed mb-6">
-        마음속에 무겁게 맴돌던 파편이 사라졌습니다.<br>
-        지금 이 순간의 고요한 숨결에 잠시 머물러보세요.
-      </p>
-      <button id="resetBtn" class="px-6 py-2.5 rounded-full text-xs font-light text-slate-200 bg-white/10 hover:bg-white/20 border border-white/20 transition-all pointer-events-auto">
-        새로운 생각 흘려보내기
-      </button>
-    </div>
-  </aside>
-
-  <script>
-    // --- 1. 오디오 합성기 (Web Audio API) ---
-    class SoundEngine {
-      constructor() {
-        this.ctx = null;
-        this.isMuted = true;
-        this.droneGain = null;
-      }
-
-      init() {
-        if (this.ctx) return;
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
-        this.ctx = new AudioContext();
-
-        // 앰비언트 백그라운드 패드 사운드
-        this.droneGain = this.ctx.createGain();
-        this.droneGain.gain.setValueAtTime(0, this.ctx.currentTime);
-        this.droneGain.connect(this.ctx.destination);
-
-        // 부드러운 화음 3개 생성 (Csus2 계열: C, G, D 주파수)
-        const freqs = [130.81, 196.00, 293.66, 392.00];
-        freqs.forEach(freq => {
-          const osc = this.ctx.createOscillator();
-          const filter = this.ctx.createBiquadFilter();
-          const gain = this.ctx.createGain();
-
-          osc.type = 'sine';
-          osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
-
-          filter.type = 'lowpass';
-          filter.frequency.setValueAtTime(450, this.ctx.currentTime);
-
-          gain.gain.setValueAtTime(0.04, this.ctx.currentTime);
-
-          osc.connect(filter);
-          filter.connect(gain);
-          gain.connect(this.droneGain);
-          osc.start();
-        });
-      }
-
-      toggle() {
-        if (!this.ctx) this.init();
-        if (this.ctx.state === 'suspended') {
-          this.ctx.resume();
-        }
-
-        this.isMuted = !this.isMuted;
-        if (this.droneGain) {
-          const target = this.isMuted ? 0 : 0.4;
-          this.droneGain.gain.setTargetAtTime(target, this.ctx.currentTime, 1.5);
-        }
-        return !this.isMuted;
-      }
-
-      // 시작 시 벨/싱잉볼 타종음
-      playChime() {
-        if (this.isMuted || !this.ctx) return;
-        const chimeGain = this.ctx.createGain();
-        chimeGain.connect(this.ctx.destination);
-
-        const now = this.ctx.currentTime;
-        chimeGain.gain.setValueAtTime(0, now);
-        chimeGain.gain.linearRampToValueAtTime(0.18, now + 0.1);
-        chimeGain.gain.exponentialRampToValueAtTime(0.0001, now + 6.0);
-
-        [523.25, 783.99, 1046.50].forEach(f => {
-          const osc = this.ctx.createOscillator();
-          osc.type = 'sine';
-          osc.frequency.setValueAtTime(f, now);
-          osc.connect(chimeGain);
-          osc.start(now);
-          osc.stop(now + 6.5);
-        });
-      }
-
-      // 소멸 시 별가루 소리
-      playVanish() {
-        if (this.isMuted || !this.ctx) return;
-        const now = this.ctx.currentTime;
-        const gain = this.ctx.createGain();
-        gain.connect(this.ctx.destination);
-        gain.gain.setValueAtTime(0.12, now);
-        gain.gain.exponentialRampToValueAtTime(0.0001, now + 4.0);
-
-        [659.25, 987.77, 1318.51].forEach(f => {
-          const osc = this.ctx.createOscillator();
-          osc.type = 'triangle';
-          osc.frequency.setValueAtTime(f, now);
-          osc.connect(gain);
-          osc.start(now);
-          osc.stop(now + 4.0);
-        });
-      }
-    }
-
-    const sound = new SoundEngine();
-
-    // --- 2. 캔버스 렌더링 & 파티클 시스템 ---
-    const canvas = document.getElementById('universeCanvas');
-    const ctx = canvas.getContext('2d');
-
-    let width = 0;
-    let height = 0;
-
-    function resizeCanvas() {
-      width = window.innerWidth;
-      height = window.innerHeight;
-      canvas.width = width * window.devicePixelRatio;
-      canvas.height = height * window.devicePixelRatio;
-      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
-    }
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
-
-    // 배경 항성들
-    const bgStars = [];
-    const NUM_STARS = 160;
-    for (let i = 0; i < NUM_STARS; i++) {
-      bgStars.push({
-        x: Math.random(),
-        y: Math.random(),
-        size: Math.random() * 1.6 + 0.4,
-        alpha: Math.random() * 0.7 + 0.2,
-        speed: Math.random() * 0.0002 + 0.00005,
-        twinkleSpeed: Math.random() * 0.03 + 0.01,
-        angle: Math.random() * Math.PI * 2
-      });
-    }
-
-    // 사라질 때 퍼지는 잔해 파티클
-    let stardustParticles = [];
-
-    // 메인 소멸 대상 오브젝트 상태
-    let selectedMode = 'star'; // 'star' | 'pebble'
-    let isMeditating = false;
-    let meditationStartTime = 0;
-    const TOTAL_DURATION = 60 * 1000; // 60초
-
-    let thoughtObject = {
-      text: '',
-      type: 'star',
-      x: 0,
-      y: 0,
-      radius: 120,
-      alpha: 1,
-      scale: 1,
-      rotation: 0
-    };
-
-    // 가이드 메시지 스케줄
-    const guideCues = [
-      { time: 0, guide: "천천히 숨을 깊게 들이쉬세요...", sub: "이 생각과 마주하는 순간을 온전히 지켜보세요." },
-      { time: 6, guide: "잠시 숨을 멈추고...", sub: "생각의 무게를 가만히 느껴봅니다." },
-      { time: 10, guide: "천천히 숨을 내쉬어 보세요.", sub: "마음의 긴장을 어깨 밑으로 내려놓습니다." },
-      { time: 18, guide: "생각이 당신에게서 멀어지기 시작합니다.", sub: "당신은 이 생각보다 훨씬 더 넓고 깊은 우주입니다." },
-      { time: 28, guide: "깊게 들이쉬고...", sub: "이 생각은 당신의 정체성이 아닙니다." },
-      { time: 34, guide: "...부드럽게 내쉬세요.", sub: "흘러가는 구름처럼 그저 지나가게 두세요." },
-      { time: 44, guide: "점점 작아져 먼 점이 되어갑니다.", sub: "지금 이 순간, 당신은 온전히 안전합니다." },
-      { time: 54, guide: "마지막 한숨을 가볍게 비워내세요.", sub: "남아있던 흔적이 별빛 속으로 완전히 흩어집니다." }
-    ];
-
-    // --- 3. 렌더 루프 ---
-    function render(timestamp) {
-      ctx.clearRect(0, 0, width, height);
-
-      // 깊은 밤하늘 그라디언트 배경
-      const bgGrad = ctx.createRadialGradient(
-        width / 2, height / 2, 50,
-        width / 2, height / 2, Math.max(width, height) * 0.8
-      );
-      bgGrad.addColorStop(0, '#090d20');
-      bgGrad.addColorStop(0.6, '#030712');
-      bgGrad.addColorStop(1, '#010307');
-      ctx.fillStyle = bgGrad;
-      ctx.fillRect(0, 0, width, height);
-
-      // 배경 별 렌더링
-      for (const s of bgStars) {
-        s.angle += s.twinkleSpeed;
-        const currentAlpha = Math.max(0.1, s.alpha + Math.sin(s.angle) * 0.25);
-        ctx.fillStyle = `rgba(224, 231, 255, ${currentAlpha})`;
-        ctx.beginPath();
-        ctx.arc(s.x * width, s.y * height, s.size, 0, Math.PI * 2);
-        ctx.fill();
-
-        // 미세 이동
-        s.y -= s.speed;
-        if (s.y < 0) s.y = 1;
-      }
-
-      // 명상 진행 시 오브젝트 렌더링
-      if (isMeditating) {
-        const elapsed = Date.now() - meditationStartTime;
-        const progress = Math.min(1, elapsed / TOTAL_DURATION);
-
-        // 시간 기반 축소 (처음엔 완만하다가 뒤로 갈수록 점차 가속되어 사라짐)
-        const shrinkEase = Math.pow(1 - progress, 1.8);
-        thoughtObject.scale = Math.max(0.015, shrinkEase);
-        thoughtObject.alpha = Math.max(0, (1 - Math.pow(progress, 3)));
-        
-        // 미세한 부유 & 호흡 진동 (Sine Wave)
-        const breatheScale = 1 + Math.sin(elapsed * 0.002) * 0.04;
-        const currentRadius = thoughtObject.radius * thoughtObject.scale * breatheScale;
-        
-        // 우주 뒤편으로 멀어지는 Y축 미세 이동
-        const targetY = (height / 2) - (progress * 60);
-
-        // 텍스트 감싸는 오브젝트 그리기
-        ctx.save();
-        ctx.translate(width / 2, targetY);
-
-        if (thoughtObject.type === 'star') {
-          drawStarOrb(ctx, currentRadius, thoughtObject.alpha, elapsed);
-        } else {
-          drawRiverPebble(ctx, currentRadius, thoughtObject.alpha, elapsed);
-        }
-
-        // 오브젝트 내부 텍스트 (충분히 클 때만 렌더링)
-        if (thoughtObject.scale > 0.22 && thoughtObject.alpha > 0.2) {
-          drawEnclosedText(ctx, thoughtObject.text, currentRadius * 1.4, thoughtObject.alpha * (thoughtObject.scale - 0.2) * 1.5);
-        }
-
-        ctx.restore();
-
-        // 60초 만료 시 폭발 및 소멸
-        if (progress >= 1) {
-          triggerVanishParticles(width / 2, targetY);
-          finishMeditation();
-        }
-      }
-
-      // 파티클 소멸 효과 렌더링
-      renderParticles();
-
-      requestAnimationFrame(render);
-    }
-
-    // 빛나는 별(오브) 렌더링
-    function drawStarOrb(ctx, radius, alpha, time) {
-      const pulseGlow = Math.sin(time * 0.003) * 8;
-      const grad = ctx.createRadialGradient(0, 0, radius * 0.1, 0, 0, radius + 20 + pulseGlow);
-      
-      grad.addColorStop(0, `rgba(255, 255, 255, ${alpha * 0.95})`);
-      grad.addColorStop(0.35, `rgba(165, 180, 252, ${alpha * 0.75})`);
-      grad.addColorStop(0.7, `rgba(99, 102, 241, ${alpha * 0.35})`);
-      grad.addColorStop(1, `rgba(49, 46, 129, 0)`);
-
-      ctx.beginPath();
-      ctx.arc(0, 0, radius + 20 + pulseGlow, 0, Math.PI * 2);
-      ctx.fillStyle = grad;
-      ctx.fill();
-
-      // 코어
-      ctx.beginPath();
-      ctx.arc(0, 0, radius * 0.85, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(240, 245, 255, ${alpha * 0.85})`;
-      ctx.fill();
-
-      // 외부 십자 반사광
-      ctx.strokeStyle = `rgba(255, 255, 255, ${alpha * 0.35})`;
-      ctx.lineWidth = 1.2;
-      const beamLen = radius * 1.8;
-      ctx.beginPath();
-      ctx.moveTo(-beamLen, 0); ctx.lineTo(beamLen, 0);
-      ctx.moveTo(0, -beamLen); ctx.lineTo(0, beamLen);
-      ctx.stroke();
-    }
-
-    // 둥글고 고요한 여울 조약돌 렌더링
-    function drawRiverPebble(ctx, radius, alpha, time) {
-      // 은은한 회색/청회색 톤의 조약돌
-      const grad = ctx.createRadialGradient(-radius * 0.3, -radius * 0.3, radius * 0.2, 0, 0, radius);
-      grad.addColorStop(0, `rgba(148, 163, 184, ${alpha * 0.95})`);
-      grad.addColorStop(0.5, `rgba(71, 85, 105, ${alpha * 0.85})`);
-      grad.addColorStop(0.9, `rgba(30, 41, 59, ${alpha * 0.9})`);
-      grad.addColorStop(1, `rgba(15, 23, 42, ${alpha * 0.4})`);
-
-      // 타원형 및 조약돌 곡선
-      ctx.save();
-      ctx.scale(1.2, 0.9);
-      ctx.beginPath();
-      ctx.arc(0, 0, radius, 0, Math.PI * 2);
-      ctx.fillStyle = grad;
-      ctx.fill();
-
-      // 조약돌 테두리 은은한 푸른 물빛 반사광
-      ctx.lineWidth = 2;
-      ctx.strokeStyle = `rgba(186, 230, 253, ${alpha * 0.3})`;
-      ctx.stroke();
-      ctx.restore();
-    }
-
-    // 오브젝트 내부 텍스트 래핑 및 출력
-    function drawEnclosedText(ctx, text, maxLineWidth, alpha) {
-      if (!text) return;
-      ctx.fillStyle = thoughtObject.type === 'star' ? `rgba(17, 24, 39, ${alpha})` : `rgba(241, 245, 249, ${alpha})`;
-      ctx.font = '300 13px Pretendard, sans-serif';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-
-      // 글자 자동 줄바꿈
-      const words = text.split('');
-      let lines = [];
-      let currentLine = '';
-
-      for (let i = 0; i < words.length; i++) {
-        const testLine = currentLine + words[i];
-        const metrics = ctx.measureText(testLine);
-        if (metrics.width > maxLineWidth && i > 0) {
-          lines.push(currentLine);
-          currentLine = words[i];
-        } else {
-          currentLine = testLine;
-        }
-      }
-      lines.push(currentLine);
-
-      // 최대 3줄만 표시
-      if (lines.length > 3) {
-        lines = lines.slice(0, 3);
-        lines[2] = lines[2].slice(0, -2) + '...';
-      }
-
-      const lineHeight = 18;
-      const startY = -((lines.length - 1) * lineHeight) / 2;
-
-      for (let j = 0; j < lines.length; j++) {
-        ctx.fillText(lines[j], 0, startY + (j * lineHeight));
-      }
-    }
-
-    // 소멸 시 별가루 파티클 확산
-    function triggerVanishParticles(cx, cy) {
-      sound.playVanish();
-      const count = 75;
-      for (let i = 0; i < count; i++) {
-        const angle = Math.random() * Math.PI * 2;
-        const speed = Math.random() * 3.5 + 0.5;
-        stardustParticles.push({
-          x: cx,
-          y: cy,
-          vx: Math.cos(angle) * speed,
-          vy: Math.sin(angle) * speed,
-          size: Math.random() * 2.5 + 1,
-          alpha: 1,
-          decay: Math.random() * 0.012 + 0.008,
-          color: thoughtObject.type === 'star' ? '199, 210, 254' : '148, 163, 184'
-        });
-      }
-    }
-
-    function renderParticles() {
-      for (let i = stardustParticles.length - 1; i >= 0; i--) {
-        const p = stardustParticles[i];
-        p.x += p.vx;
-        p.y += p.vy;
-        p.vx *= 0.98;
-        p.vy *= 0.98;
-        p.alpha -= p.decay;
-
-        if (p.alpha <= 0) {
-          stardustParticles.splice(i, 1);
-          continue;
-        }
-
-        ctx.fillStyle = `rgba(${p.color}, ${p.alpha})`;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    }
-
-    // --- 4. 사용자 상호작용 및 UI 제어 ---
-    const inputCard = document.getElementById('inputCard');
-    const thoughtInput = document.getElementById('thoughtInput');
-    const charCount = document.getElementById('charCount');
-    const releaseBtn = document.getElementById('releaseBtn');
-    const typeStar = document.getElementById('typeStar');
-    const typePebble = document.getElementById('typePebble');
-
-    const meditationOverlay = document.getElementById('meditationOverlay');
-    const timerText = document.getElementById('timerText');
-    const breathingGuideText = document.getElementById('breathingGuideText');
-    const subMessageText = document.getElementById('subMessageText');
-
-    const completionModal = document.getElementById('completionModal');
-    const resetBtn = document.getElementById('resetBtn');
-
-    const soundToggleBtn = document.getElementById('soundToggleBtn');
-    const soundIconOn = document.getElementById('soundIconOn');
-    const soundIconOff = document.getElementById('soundIconOff');
-    const soundStatusText = document.getElementById('soundStatusText');
-
-    let timerInterval = null;
-
-    // 글자 수 카운터
-    thoughtInput.addEventListener('input', () => {
-      charCount.textContent = `${thoughtInput.value.length} / 140`;
-    });
-
-    // 형태 선택 토글
-    typeStar.addEventListener('click', () => {
-      selectedMode = 'star';
-      typeStar.classList.add('active');
-      typePebble.classList.remove('active');
-    });
-
-    typePebble.addEventListener('click', () => {
-      selectedMode = 'pebble';
-      typePebble.classList.add('active');
-      typeStar.classList.remove('active');
-    });
-
-    // 음소거 토글
-    soundToggleBtn.addEventListener('click', () => {
-      const isSoundOn = sound.toggle();
-      if (isSoundOn) {
-        soundIconOn.classList.remove('hidden');
-        soundIconOff.classList.add('hidden');
-        soundStatusText.textContent = "소리 켜짐";
-      } else {
-        soundIconOn.classList.add('hidden');
-        soundIconOff.classList.remove('hidden');
-        soundStatusText.textContent = "소리 켜기";
-      }
-    });
-
-    // 흘려보내기 실행
-    releaseBtn.addEventListener('click', () => {
-      const text = thoughtInput.value.trim();
-      if (!text) {
-        thoughtInput.focus();
-        thoughtInput.classList.add('ring-2', 'ring-rose-400');
-        setTimeout(() => thoughtInput.classList.remove('ring-2', 'ring-rose-400'), 1000);
-        return;
-      }
-
-      // 오디오 컨텍스트 웜업 & 타종음 재생
-      if (sound.isMuted) {
-        sound.toggle();
-        soundIconOn.classList.remove('hidden');
-        soundIconOff.classList.add('hidden');
-        soundStatusText.textContent = "소리 켜짐";
-      }
-      sound.playChime();
-
-      // 카드 퇴장
-      inputCard.classList.remove('opacity-100', 'translate-y-0');
-      inputCard.classList.add('opacity-0', 'translate-y-6', 'pointer-events-none');
-
-      // 오브젝트 데이터 초기화
-      thoughtObject = {
-        text: text,
-        type: selectedMode,
-        x: width / 2,
-        y: height / 2,
-        radius: Math.min(width * 0.18, 110),
-        alpha: 1,
-        scale: 1
-      };
-
-      // 명상 시작
-      isMeditating = true;
-      meditationStartTime = Date.now();
-
-      // 가이드 UI 활성화
-      meditationOverlay.classList.remove('opacity-0', 'pointer-events-none');
-      meditationOverlay.classList.add('opacity-100');
-
-      startMeditationTimer();
-    });
-
-    // 타이머 및 호흡 가이드 스케줄러
-    function startMeditationTimer() {
-      let secondsLeft = 60;
-      timerText.textContent = `${secondsLeft}s`;
-
-      timerInterval = setInterval(() => {
-        secondsLeft--;
-        if (secondsLeft >= 0) {
-          timerText.textContent = `${secondsLeft}s`;
-        }
-
-        const elapsedSec = 60 - secondsLeft;
-        const currentCue = [...guideCues].reverse().find(cue => elapsedSec >= cue.time);
-
-        if (currentCue && breathingGuideText.textContent !== currentCue.guide) {
-          breathingGuideText.style.opacity = '0';
-          subMessageText.style.opacity = '0';
-          setTimeout(() => {
-            breathingGuideText.textContent = currentCue.guide;
-            subMessageText.textContent = currentCue.sub;
-            breathingGuideText.style.opacity = '1';
-            subMessageText.style.opacity = '1';
-          }, 300);
-        }
-
-        if (secondsLeft <= 0) {
-          clearInterval(timerInterval);
-        }
-      }, 1000);
-    }
-
-    // 명상 종료
-    function finishMeditation() {
-      isMeditating = false;
-      clearInterval(timerInterval);
-
-      // 가이드 UI 숨김
-      meditationOverlay.classList.remove('opacity-100');
-      meditationOverlay.classList.add('opacity-0', 'pointer-events-none');
-
-      // 완료 모달 노출
-      setTimeout(() => {
-        completionModal.classList.remove('opacity-0', 'pointer-events-none', 'scale-95');
-        completionModal.classList.add('opacity-100', 'scale-100', 'pointer-events-auto');
-      }, 1200);
-    }
-
-    // 재시작
-    resetBtn.addEventListener('click', () => {
-      completionModal.classList.add('opacity-0', 'pointer-events-none', 'scale-95');
-      completionModal.classList.remove('opacity-100', 'scale-100', 'pointer-events-auto');
-
-      thoughtInput.value = '';
-      charCount.textContent = '0 / 140';
-
-      setTimeout(() => {
-        inputCard.classList.remove('opacity-0', 'translate-y-6', 'pointer-events-none');
-        inputCard.classList.add('opacity-100', 'translate-y-0');
-      }, 500);
-    });
-
-    // 렌더링 루프 시작
-    requestAnimationFrame(render);
-  </script>
+<body class="antialiased">
+<main aria-label="비 오는 툇마루" id="sanctuary">
+<!-- Self-contained landscape: no CDN, remote fonts, or image requests. -->
+<svg class="landscape" viewBox="0 0 1440 1000" preserveAspectRatio="xMidYMid slice" role="img" aria-labelledby="sceneTitle">
+<title id="sceneTitle">처마 아래 나무 툇마루에서 바라보는 비 내리는 산과 정원</title>
+<defs>
+ <linearGradient id="sky" x2="0" y2="1"><stop stop-color="#d6ddd0"/><stop offset="1" stop-color="#bbcdb7"/></linearGradient>
+ <linearGradient id="ground" x2="0" y2="1"><stop stop-color="#95ae94"/><stop offset="1" stop-color="#68856d"/></linearGradient>
+ <linearGradient id="wood" x2="0.25" y2="1"><stop stop-color="#655c47"/><stop offset=".5" stop-color="#71634a"/><stop offset="1" stop-color="#3d3e30"/></linearGradient>
+ <linearGradient id="beam" x2="1" y2="0"><stop stop-color="#303b30"/><stop offset=".45" stop-color="#46503b"/><stop offset="1" stop-color="#333c2e"/></linearGradient>
+ <linearGradient id="water" x2="0" y2="1"><stop stop-color="#b3c4ad"/><stop offset="1" stop-color="#7f9980"/></linearGradient>
+ <radialGradient id="mist"><stop stop-color="#e4e8db" stop-opacity=".8"/><stop offset="1" stop-color="#e4e8db" stop-opacity="0"/></radialGradient>
+ <filter id="blur"><feGaussianBlur stdDeviation="9"/></filter>
+ <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency=".7" numOctaves="3" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncA type="linear" slope=".055"/></feComponentTransfer><feBlend in="SourceGraphic" mode="multiply"/></filter>
+ <pattern id="woodgrain" width="170" height="65" patternUnits="userSpaceOnUse"><path d="M0 12Q90 6 170 15M0 16Q100 11 170 20M12 44Q85 53 163 43M0 59Q65 50 170 58" fill="none" stroke="#b2a277" stroke-opacity=".13"/><ellipse cx="70" cy="34" rx="24" ry="3" fill="none" stroke="#312f25" stroke-opacity=".22"/></pattern>
+</defs>
+<g filter="url(#grain)">
+<path fill="url(#sky)" d="M0 0H1440V1000H0z"/>
+<path d="M0 389Q110 327 200 369T390 311Q470 280 560 328Q670 365 780 309Q875 249 990 320T1210 302Q1320 253 1440 312V650H0Z" fill="#9fb49e" opacity=".34"/>
+<path d="M0 479Q110 381 221 422Q294 446 385 401T570 407Q680 449 811 395Q892 350 1012 403T1195 382Q1330 344 1440 409V660H0Z" fill="#8da88c" opacity=".4"/>
+<path d="M0 537Q149 467 284 500T515 482Q665 475 789 492T1044 460Q1212 457 1440 492V760H0Z" fill="#7d9a7b" opacity=".4"/>
+<ellipse cx="766" cy="495" rx="570" ry="120" fill="url(#mist)"/>
+<path d="M0 595Q200 562 360 595T680 588Q1040 557 1440 600V870H0Z" fill="url(#ground)"/>
+<!-- Garden pond and stepping stones -->
+<path d="M270 683Q391 600 652 624Q798 641 1011 613Q1237 597 1275 677Q1300 745 1101 767L413 782Q167 773 270 683" fill="url(#water)"/>
+<g fill="none" stroke="#d3decc" stroke-width="1" opacity=".45"><ellipse cx="572" cy="679" rx="34" ry="4"/><ellipse cx="572" cy="679" rx="22" ry="2"/><ellipse cx="1003" cy="687" rx="42" ry="5"/><ellipse cx="815" cy="731" rx="28" ry="3"/><ellipse cx="423" cy="720" rx="34" ry="4"/><path d="M630 650h70m270 84h80m-610 20h76"/></g>
+<g fill="#737f6a"><path d="M380 639q20-39 68-16l13 24-77 4z"/><path d="M1080 619q32-42 78-4l11 20-88 7z"/><path d="M880 768q17-27 53-12l20 20-81 2z"/></g>
+<g fill="#9da68f"><path d="m386 637 27-13 28 6-4 8z"/><path d="m1091 618 33-8 29 17-63 4z"/></g>
+<!-- Trees framing a quiet view -->
+<path d="M116 720q35-155 4-312l24-58 17 4-15 72q42 152 12 294z" fill="#56684e"/><path d="m144 485 84-77 5-74 10 2 2 84-90 94M136 436 67 375l-12-63 12-3 20 57 59 45" fill="#56684e"/>
+<g fill="#5e7959"><ellipse cx="75" cy="320" rx="109" ry="40"/><ellipse cx="162" cy="289" rx="95" ry="37"/><ellipse cx="242" cy="333" rx="88" ry="37"/><ellipse cx="81" cy="383" rx="104" ry="33"/><ellipse cx="257" cy="398" rx="76" ry="30"/></g>
+<g fill="#79906b" opacity=".8"><ellipse cx="130" cy="275" rx="74" ry="21"/><ellipse cx="245" cy="319" rx="67" ry="20"/><ellipse cx="58" cy="362" rx="65" ry="17"/></g>
+<path d="M1310 730q-26-116 1-234l-16-122 17-5 21 129q-18 114 4 232z" fill="#657455"/><path d="m1321 519-91-79-21-69 12-4 25 66 80 59" fill="#657455"/>
+<g fill="#72896a"><ellipse cx="1324" cy="351" rx="116" ry="37"/><ellipse cx="1215" cy="379" rx="80" ry="32"/><ellipse cx="1372" cy="426" rx="103" ry="38"/><ellipse cx="1261" cy="459" rx="75" ry="28"/></g>
+<!-- Distant temple wall and tiled roof -->
+<path d="M143 572h185v74H143z" fill="#b7b9a1"/><path d="M113 576q98-24 131-53 36 34 120 53z" fill="#657765"/><path d="M137 579h210" stroke="#485d4b" stroke-width="5"/><path d="M168 598h13v49h-13zm112 0h13v49h-13z" fill="#7b7f65"/>
+<g fill="#536f53"><ellipse cx="223" cy="676" rx="104" ry="25"/><ellipse cx="1275" cy="683" rx="143" ry="28"/></g>
+<!-- Porch: the viewer is already seated under the eaves. -->
+<path d="M0 780Q720 758 1440 780V1000H0Z" fill="url(#wood)"/>
+<path d="M0 780Q720 758 1440 780" fill="none" stroke="#323b2d" stroke-width="12"/>
+<path d="M0 789H1440V1000H0Z" fill="url(#woodgrain)"/>
+<g fill="none" stroke="#302f26" stroke-width="2" opacity=".75"><path d="M0 821h1440M0 870h1440M0 930h1440M120 786 0 1000M315 781 225 1000M520 775 475 1000M720 775v225M920 775l45 225M1120 781l95 219M1320 786l120 214"/></g>
+<g fill="none" stroke="#b6a67d" opacity=".18"><path d="M0 824h1440M0 873h1440M0 933h1440"/></g>
+<!-- Quiet illustrated neighbors: decorative scene characters, not online users. -->
+<g class="neighbors" aria-hidden="true">
+ <ellipse cx="572" cy="835" rx="35" ry="8" fill="#252e25" opacity=".45"/>
+ <path d="M550 802q-12 14-13 29 21 7 38-1l21 3q14-3 6-10l-23-12z" fill="#444d41"/>
+ <path d="M553 767q16-10 29 1l9 41q-17 13-45 2z" fill="#9c9e86"/>
+ <path d="M558 764v10q9 5 16 0v-11" fill="#ad9d80"/>
+ <ellipse cx="567" cy="753" rx="13" ry="16" fill="#b6a68c"/><path d="M554 753q-5-24 13-24 19 0 13 27l-5-8q-10 1-17-4z" fill="#3e4439"/>
+ <path d="m550 780-10 29 9 8m35-36 9 27-8 8" fill="none" stroke="#9c9e86" stroke-width="10" stroke-linecap="round"/>
+ <ellipse cx="857" cy="832" rx="39" ry="8" fill="#252e25" opacity=".4"/>
+ <path d="M838 809q-14 9-14 21l33 2 33-2q4-6-5-12l-24-11z" fill="#677264"/>
+ <path d="M839 773q14-8 28 1l13 41q-26 9-51-1z" fill="#586b60"/>
+ <path d="M846 764v13l14 1v-14" fill="#b7a58a"/>
+ <ellipse cx="853" cy="754" rx="12" ry="15" fill="#b7a58a"/><path d="M841 755q-6-22 13-23 15 0 14 22l-6-9-21 8z" fill="#4a4b3e"/>
+ <path d="m837 783-11 25 10 6m32-31 12 24-10 8" fill="none" stroke="#586b60" stroke-width="9" stroke-linecap="round"/>
+</g>
+<!-- Small tea cup: no task attached. -->
+<ellipse cx="1080" cy="842" rx="35" ry="8" fill="#292e23" opacity=".4"/><ellipse cx="1079" cy="833" rx="31" ry="7" fill="#918973"/><path d="M1059 811q0 28 20 29t21-29" fill="#b3b29a"/><ellipse cx="1080" cy="811" rx="21" ry="6" fill="#d1cbb1"/><ellipse cx="1080" cy="812" rx="16" ry="3" fill="#79785a"/>
+<!-- Timber pillars and overhead eaves -->
+<path d="M0 0H1440V78Q720 128 0 79Z" fill="#303d30"/><path d="M0 55q720 87 1440 0v27q-720 88-1440 0z" fill="#4d5841"/>
+<path d="M0 0h64v799L0 827zM1376 0h64v827l-64-28z" fill="url(#beam)"/>
+<path d="M62 85h12v689H62zM1366 85h12v689h-12z" fill="#273c2e" opacity=".3"/>
+<g stroke="#b4bda0" stroke-width="1" opacity=".14"><path d="M18 0v800M40 0v793M1394 0v799M1416 0v810"/></g>
+</g>
+</svg>
+<div class="scene-wash"></div><canvas id="rain" aria-hidden="true"></canvas>
+<header>
+<a class="brand" href="" aria-label="Non-Doing"><span class="mark">無</span><span class="brand-name">NON-DOING<span class="brand-sub" data-i18n="brandSub">아무것도 하지 않는 시간</span></span></a>
+<nav aria-label="화면 설정"><button class="language" id="language" type="button" aria-label="Switch to English">EN</button><div class="controls"><button class="sound" id="sound" type="button" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><path d="M10 5 5 9H2v6h3l5 4V5Zm4 3q5 4 0 8m3-11q8 7 0 14"/><path class="mute-line" d="m2 2 20 20"/></svg><span data-i18n="soundOff">빗소리 켜기</span></button><span class="sound-hint" id="soundHint" data-i18n="hint">소리가 필요하면, 한 번만.</span></div></nav>
+</header>
+<section class="introduction text-balance" aria-labelledby="welcome"><p class="eyebrow" data-i18n="eyebrow">A SMALL SHELTER FROM THE NOISE</p><h1 id="welcome" data-i18n="welcome">아무것도 하지 않아도 괜찮아요.</h1><p class="description" data-i18n="description">해야 할 일도, 잘해야 할 일도 없어요.<br>그저 비가 오는 걸 바라보세요.</p></section>
+<div class="quiet-note"><i></i><span data-i18n="weather">이곳에는, 비가 내리고 있습니다.</span></div>
+<div class="stillness" aria-hidden="true">雨 聲 無 爲</div>
+<footer class="bottom"><div class="place" data-i18n="place">비 오는 툇마루<span>THE RAINY VERANDA</span></div><div class="small-note" data-i18n="note">머무른 시간을 세지 않아요.<br>그냥, 여기 있어도 돼요.</div><button class="share" id="share" type="button"><span data-i18n="share">이 쉼터 나누기</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M14 4h6v6M20 4 10 14M10 5H4v15h15v-6"/></svg></button></footer>
+</main>
+<button class="ritual-entry" id="openRitual" type="button">생각 내려놓기</button>
+<button class="view-toggle" id="viewToggle" type="button" aria-pressed="false" data-i18n="view">풍경만 보기</button>
+<div class="toast" id="toast" role="status" hidden></div>
+<script>
+'use strict';
+const copy={ko:{brandSub:'아무것도 하지 않는 시간',eyebrow:'A SMALL SHELTER FROM THE NOISE',welcome:'아무것도 하지 않아도 괜찮아요.',description:'해야 할 일도, 잘해야 할 일도 없어요.<br>그저 비가 오는 걸 바라보세요.',weather:'이곳에는, 비가 내리고 있습니다.',place:'비 오는 툇마루<span>THE RAINY VERANDA</span><div class="neighbor-note">풍경 속 이웃 · 연출</div>',note:'머무른 시간을 세지 않아요.<br>그냥, 여기 있어도 돼요.',share:'이 쉼터 나누기',soundOff:'빗소리 켜기',soundOn:'빗소리 끄기',hint:'소리가 필요하면, 한 번만.',shared:'쉼터 링크를 복사했어요.',shareText:'아무것도 안 해도 되는 곳. 잠깐 비를 보고 가요.',local:'아직 로컬 미리보기예요. 웹에 배포하면 이 쉼터의 링크를 나눌 수 있어요.',audioError:'소리를 켜지 못했어요. 다시 한 번 눌러 주세요.',manual:'주소를 복사해 이 쉼터를 나눠 보세요.',scene:'처마 아래 나무 툇마루에서 바라보는 비 내리는 산과 정원',nav:'화면 설정',view:'풍경만 보기',restore:'돌아오기',neighbors:'풍경 속 이웃 · 연출'},en:{brandSub:'TIME TO SIMPLY BE',eyebrow:'A SMALL SHELTER FROM THE NOISE',welcome:'You don’t have to do anything.',description:'Nothing to finish. Nothing to get right.<br>Just watch the rain for a while.',weather:'Here, the rain is falling.',place:'The rainy veranda<span>A MOMENT OF NON-DOING</span><div class="neighbor-note">Illustrated company</div>',note:'We don’t count the time you spend here.<br>You can simply stay.',share:'Share this shelter',soundOff:'Rain sound on',soundOn:'Rain sound off',hint:'One touch, if you’d like sound.',shared:'Shelter link copied.',shareText:'A place that asks nothing of you. Come watch the rain.',local:'This is a local preview. Publish the site to share a link to this shelter.',audioError:'Sound could not start. Please try again.',manual:'Copy the address to share this shelter.',scene:'Rain falling over a mountain garden, seen from a sheltered wooden veranda',nav:'View settings',view:'Just the view',restore:'Show controls',neighbors:'Illustrated company'}};
+let language=new URLSearchParams(location.search).get('lang')==='en'?'en':'ko';
+let immersive=false;
+let audio=null,source=null,volume=null,soundOn=false,toastTimer;
+const soundButton=document.getElementById('sound');
+function translate(){document.documentElement.lang=language;document.querySelectorAll('[data-i18n]').forEach(el=>{el.innerHTML=copy[language][el.dataset.i18n]});soundButton.querySelector('span').textContent=copy[language][soundOn?'soundOn':'soundOff'];document.getElementById('language').textContent=language==='ko'?'EN':'한국어';document.getElementById('language').setAttribute('aria-label',language==='ko'?'Switch to English':'한국어로 전환');document.getElementById('sceneTitle').textContent=copy[language].scene;document.getElementById('sanctuary').setAttribute('aria-label',language==='ko'?'비 오는 툇마루':'The rainy veranda');document.querySelector('nav').setAttribute('aria-label',copy[language].nav);document.querySelector('meta[name="description"]').content=copy[language].shareText;document.getElementById('viewToggle').textContent=copy[language][immersive?'restore':'view'];document.getElementById('toast').hidden=true;}
+document.getElementById('language').addEventListener('click',()=>{language=language==='ko'?'en':'ko';const url=new URL(location.href);url.searchParams.set('lang',language);history.replaceState(null,'',url);translate()});
+function toast(message){clearTimeout(toastTimer);const el=document.getElementById('toast');el.textContent=message;el.hidden=false;toastTimer=setTimeout(()=>el.hidden=true,6000)}
+// Locally generated, filtered noise. No downloads, microphone, or autoplay.
+function prepareAudio(){const Audio=window.AudioContext||window.webkitAudioContext;if(!Audio)throw new Error('Web Audio unavailable');audio=new Audio();const buffer=audio.createBuffer(2,audio.sampleRate*6,audio.sampleRate);for(let c=0;c<2;c++){const data=buffer.getChannelData(c);let last=0;for(let i=0;i<data.length;i++){const white=Math.random()*2-1;last=(last+.025*white)/1.025;data[i]=last*5.5}}source=audio.createBufferSource();source.buffer=buffer;source.loop=true;const filter=audio.createBiquadFilter();filter.type='lowpass';filter.frequency.value=3300;volume=audio.createGain();volume.gain.value=0;source.connect(filter);filter.connect(volume);volume.connect(audio.destination);source.start();}
+soundButton.addEventListener('click',async()=>{soundButton.disabled=true;try{if(!audio)prepareAudio();await audio.resume();soundOn=!soundOn;volume.gain.cancelScheduledValues(audio.currentTime);volume.gain.setTargetAtTime(soundOn?.55:0,audio.currentTime,.2);soundButton.setAttribute('aria-pressed',String(soundOn));soundButton.querySelector('span').textContent=copy[language][soundOn?'soundOn':'soundOff'];document.getElementById('soundHint').hidden=true}catch(error){soundOn=false;soundButton.setAttribute('aria-pressed','false');soundButton.querySelector('span').textContent=copy[language].soundOff;if(audio){audio.close().catch(()=>{});audio=null}toast(copy[language].audioError)}finally{soundButton.disabled=false}});
+// Keep the user's selected rain sound playing in background tabs.
+function setImmersive(next){immersive=next;document.body.classList.toggle('immersive',immersive);const button=document.getElementById('viewToggle');button.textContent=copy[language][immersive?'restore':'view'];button.setAttribute('aria-pressed',String(immersive));}
+document.getElementById('viewToggle').addEventListener('click',()=>setImmersive(!immersive));
+document.addEventListener('keydown',event=>{if(event.key==='Escape'&&immersive){setImmersive(false);document.getElementById('viewToggle').focus()}});
+document.getElementById('share').addEventListener('click',async()=>{if(['localhost','127.0.0.1',''].includes(location.hostname)||location.protocol==='file:'){toast(copy[language].local);return}const data={title:'Non-Doing · 無爲',text:copy[language].shareText,url:location.href};try{if(navigator.share){await navigator.share(data)}else if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(data.url);toast(copy[language].shared)}else{toast(copy[language].manual)}}catch(error){if(error.name!=='AbortError')toast(copy[language].manual)}});
+// Cap pixel density and elapsed time; suspend rendering while the tab is hidden.
+const canvas=document.getElementById('rain'),ctx=canvas.getContext('2d');
+const reduced=matchMedia('(prefers-reduced-motion: reduce)');let width=0,height=0,drops=[],frame=null,last=0;
+function resize(){width=innerWidth;height=innerHeight;const dpr=Math.min(devicePixelRatio||1,2);canvas.width=Math.round(width*dpr);canvas.height=Math.round(height*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);drops=Array.from({length:Math.min(150,Math.round(width/9))},()=>({x:Math.random()*width,y:Math.random()*height,speed:160+Math.random()*200,length:8+Math.random()*12,alpha:.12+Math.random()*.18}));if(reduced.matches)draw(0)}
+function draw(dt){ctx.clearRect(0,0,width,height);ctx.lineWidth=.7;for(const d of drops){d.y+=d.speed*dt;d.x-=d.speed*.14*dt;if(d.y>height*.78){d.y=height*.13;d.x=Math.random()*width}if(d.x<0)d.x=width;ctx.strokeStyle=`rgba(238,245,227,${d.alpha})`;ctx.beginPath();ctx.moveTo(d.x,d.y);ctx.lineTo(d.x-2,d.y+d.length);ctx.stroke()}}
+function animate(time){draw(last?Math.min((time-last)/1000,.05):0);last=time;frame=requestAnimationFrame(animate)}
+function setMotion(){if(frame!==null){cancelAnimationFrame(frame);frame=null}last=0;if(!document.hidden&&!reduced.matches)frame=requestAnimationFrame(animate);else if(reduced.matches)draw(0)}
+window.addEventListener('resize',resize);reduced.addEventListener('change',setMotion);document.addEventListener('visibilitychange',setMotion);resize();setMotion();translate();
+</script>
+<script src="ritual.js"></script>
 </body>
 </html>

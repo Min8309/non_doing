@@ -1,0 +1,6 @@
+import { mkdir, copyFile, rm } from 'node:fs/promises';
+await rm('dist', { recursive: true, force: true });
+await mkdir('dist', { recursive: true });
+for (const name of ['index.html', 'ritual.js', 'ritual.css', 'tailwind.css']) {
+  await copyFile(name, `dist/${name}`);
+}

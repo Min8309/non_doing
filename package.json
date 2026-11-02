@@ -1,0 +1,14 @@
+{
+  "name": "non_doing",
+  "version": "1.0.0",
+  "devDependencies": {
+    "@tailwindcss/cli": "4.3.3",
+    "tailwindcss": "4.3.3"
+  },
+  "private": true,
+  "scripts": {
+    "build:css": "tailwindcss -i styles/tailwind.css -o tailwind.css --minify",
+    "build": "npm run build:css && node scripts/build.mjs",
+    "dev": "python3 -m http.server 8000 --bind 127.0.0.1"
+  }
+}
