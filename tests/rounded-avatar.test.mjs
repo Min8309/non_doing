@@ -1,0 +1,30 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import * as THREE from 'three';
+import { createRoundedAvatar } from '../src/rounded-avatar.mjs';
+test('avatar has the round-headed, short-limbed ivory/sage/moss design',()=>{
+ const rig=createRoundedAvatar();
+ rig.group.updateMatrixWorld(true);
+ const size=new THREE.Box3().setFromObject(rig.group).getSize(new THREE.Vector3());
+ const head=new THREE.Box3().setFromObject(rig.head).getSize(new THREE.Vector3());
+ assert.equal(rig.group.userData.design,'rounded-sage');
+ assert.ok(size.y>1.4&&size.y<1.6);
+ assert.ok(head.y/size.y>.4);
+ assert.ok(size.x/size.y>.45);
+ assert.equal(rig.head.material.color.getHexString(),'d8d4bd');
+ assert.equal(rig.body.material.color.getHexString(),'a7b595');
+ assert.ok(rig.legs.every(leg=>leg.foot.geometry.type==='SphereGeometry'));
+ assert.equal(rig.group.getObjectByName('hat'),undefined);
+});
+test('walking and seated poses retain articulated, finite transforms',()=>{
+ const rig=createRoundedAvatar();
+ rig.pose({walking:true,travel:.15});
+ assert.notEqual(rig.legs[0].hip.rotation.x,rig.legs[1].hip.rotation.x);
+ rig.pose({sitting:1});
+ assert.ok(rig.torso.position.y<.35);
+ assert.ok(rig.legs.every(leg=>leg.knee.rotation.x< -1));
+ rig.pose({walking:true,travel:10,reducedMotion:true});
+ assert.equal(rig.torso.rotation.z,0);
+ assert.ok(rig.legs.every(leg=>leg.hip.rotation.x===0));
+ rig.group.traverse(node=>assert.ok([...node.position.toArray(),...node.quaternion.toArray()].every(Number.isFinite)));
+});

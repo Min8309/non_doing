@@ -1,10 +1,11 @@
 import * as THREE from 'three';
+import { createRoundedAvatar } from './rounded-avatar.mjs';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { findRoomPath, walkable3D } from '../lib/room-navigation.mjs';
 export const places={
  tea:{approach:{x:-2.6,z:14.2},seat:{x:-2.6,z:13.85},angle:0,anchor:new THREE.Vector3(-2.6,1.7,12.1)},
  sofa:{approach:{x:3.1,z:14.7},seat:{x:3.1,z:16},angle:0,lift:.45,anchor:new THREE.Vector3(3.1,1.8,16)},
- window:{approach:{x:3.4,z:10.7},seat:{x:4.65,z:10.7},angle:-Math.PI/2,lift:.6,anchor:new THREE.Vector3(4.65,1.8,10.7)}
+ window:{approach:{x:3.4,z:10.7},seat:{x:4.65,z:10.7},angle:-Math.PI/2,lift:.7,anchor:new THREE.Vector3(4.65,1.8,10.7)}
 };
 export function createRoom(host,callbacks){
  const scene=new THREE.Scene();scene.background=new THREE.Color('#bfcdb9');scene.fog=new THREE.Fog('#bfcdb9',30,100);
@@ -61,15 +62,8 @@ export function createRoom(host,callbacks){
  const mailbox=new THREE.Group();box(.65,.5,.4,-3.4,1.6,18.3,'#a7aa87',mailbox);box(.7,.07,.44,-3.4,1.87,18.3,'#7c916d',mailbox);box(.4,.22,.012,-3.4,1.6,18.085,'#dedcc0',mailbox);groupAction(mailbox,'mail');scene.add(mailbox);
  cylinder(.17,.4,-4.7,1.55,18.4,'#c2c9ac');cylinder(.018,.75,-4.7,2.05,18.4,'#768963');ellipsoid(-4.58,2.2,18.4,.19,.06,.09,'#90a47b');ellipsoid(-4.82,2.35,18.4,.17,.06,.08,'#90a47b');
  cylinder(.05,2.1,5,1.05,18.4,'#81916d');const lamp=new THREE.Mesh(new THREE.CylinderGeometry(.35,.45,.7,14),new THREE.MeshStandardMaterial({color:'#ddd9b8',emissive:'#9d9d6d',emissiveIntensity:.15,roughness:1}));lamp.position.set(5,2.2,18.4);scene.add(lamp);
- // Articulated avatar: the hip, knees and arms change pose while walking/sitting.
- const avatar=new THREE.Group();avatar.name='local-avatar';scene.add(avatar);
- const torso=new THREE.Group();torso.position.y=.84;avatar.add(torso);
- const shirt=new THREE.Mesh(new THREE.CylinderGeometry(.18,.26,.48,10),material('#b9bca0'));shirt.position.y=.1;shirt.castShadow=true;torso.add(shirt);
- ellipsoid(0,.53,0,.17,.21,.16,'#b9aa91',torso);ellipsoid(0,.63,.015,.175,.14,.16,'#4d5a48',torso);
- const arms=[],legs=[];for(const side of [-1,1]){
-  const arm=new THREE.Group();arm.position.set(side*.23,.23,0);torso.add(arm);const limb=new THREE.Mesh(new THREE.CylinderGeometry(.055,.05,.35,8),material('#b9bca0'));limb.position.y=-.17;arm.add(limb);ellipsoid(0,-.36,0,.05,.06,.05,'#b9aa91',arm);arms.push(arm);
-  const hip=new THREE.Group();hip.position.set(side*.105,.7,0);avatar.add(hip);const thigh=new THREE.Mesh(new THREE.CylinderGeometry(.075,.065,.34,8),material('#526b54'));thigh.position.y=-.16;hip.add(thigh);const knee=new THREE.Group();knee.position.y=-.32;hip.add(knee);const shin=new THREE.Mesh(new THREE.CylinderGeometry(.065,.06,.31,8),material('#526b54'));shin.position.y=-.15;knee.add(shin);box(.15,.1,.24,0,-.29,-.05,'#4b5d48',knee);legs.push({hip,knee});
- }
+ // Rounded avatar with a large ivory head and short, soft moss-colored limbs.
+ const avatarRig=createRoundedAvatar();const avatar=avatarRig.group;scene.add(avatar);
  const destination=new THREE.Mesh(new THREE.RingGeometry(.16,.2,28),new THREE.MeshBasicMaterial({color:'#e5ebce',transparent:true,opacity:.65,side:THREE.DoubleSide}));destination.rotation.x=-Math.PI/2;destination.position.y=.025;destination.visible=false;scene.add(destination);
  let state='idle',selected=null,route=[],arrival=null,sitting=0,sitTime=0,seatStart=null;
  let actor={x:0,z:5.4},travel=0,angle=0,autoCamera=true,cameraYaw=0,desiredYaw=0,lastTime=0,frameId=null,destroyed=false,contextLost=false;
@@ -77,14 +71,14 @@ export function createRoom(host,callbacks){
  const raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2();let down=null;
  controls.addEventListener('start',()=>{autoCamera=false});
  function emit(){callbacks.onState?.(state,selected)}
- function pose(){avatar.position.set(actor.x,sitting*(places[selected]?.lift||0),actor.z);avatar.rotation.y=angle;torso.position.y=.84-sitting*.33;const cycle=reducedMotion?0:Math.sin(travel*9);torso.rotation.z=state==='walking'?cycle*.025:0;legs.forEach(({hip,knee},i)=>{hip.position.y=.7-sitting*.33;hip.rotation.x=sitting*Math.PI*.46+(state==='walking'?cycle*.4*(i?1:-1):0);knee.rotation.x=-sitting*Math.PI*.46});arms.forEach((arm,i)=>{arm.rotation.x=sitting*-.55+(state==='walking'?cycle*.23*(i?-1:1):0)})}
+ function pose(){avatar.position.set(actor.x,sitting*(places[selected]?.lift||0),actor.z);avatar.rotation.y=angle;avatarRig.pose({sitting,walking:state==='walking',travel,reducedMotion})}
  function stop(){if(selected&&(state==='seated'||state==='sitting'))actor={...places[selected].approach};state='idle';selected=null;route=[];arrival=null;sitting=0;destination.visible=false;pose();emit()}
  function navigate(point,kind=null){if(!walkable3D(point.x,point.z))return false;stop();route=findRoomPath(actor,point);if(!route.length)return false;state='walking';arrival=kind;autoCamera=true;desiredYaw=point.z>8?Math.PI:0;destination.position.set(point.x,.025,point.z);destination.visible=true;emit();return true}
  function chooseSeat(key){if(!places[key])return;const place=places[key];navigate(place.approach,key);selected=key;emit()}
  function beginSit(now){seatStart={...actor};sitTime=now;state='sitting';sitting=0;destination.visible=false;angle=places[selected].angle;emit()}
  function update(dt,now){
   if(state==='walking'){
-   let budget=dt*2.8;while(route.length&&budget>0){const next=route[0],dx=next.x-actor.x,dz=next.z-actor.z,d=Math.hypot(dx,dz);if(d>.001)angle=Math.atan2(-dx,-dz);if(d<=budget){actor={...next};route.shift();travel+=d;budget-=d}else{actor.x+=dx/d*budget;actor.z+=dz/d*budget;travel+=budget;budget=0}}
+   let budget=dt*2.0;while(route.length&&budget>0){const next=route[0],dx=next.x-actor.x,dz=next.z-actor.z,d=Math.hypot(dx,dz);if(d>.001)angle=Math.atan2(-dx,-dz);if(d<=budget){actor={...next};route.shift();travel+=d;budget-=d}else{actor.x+=dx/d*budget;actor.z+=dz/d*budget;travel+=budget;budget=0}}
    if(!route.length){destination.visible=false;if(places[arrival])beginSit(now);else{state='idle';const action=arrival;arrival=null;emit();if(action==='mail')callbacks.onMailbox?.()}}
   }
   if(state==='sitting'){
