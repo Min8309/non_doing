@@ -9,3 +9,6 @@
 .pond-mode .journey-controls button,.pond-mode .journey-track{background:#204b4ecc;border-color:#d1e7d538;color:#e9f2e3}
 .pond-mode .ritual-complete{background:#234c4fe0;border-color:#d1e7d538}
 .pond-mode .ritual-complete p{color:#d3e6d7}
+
+/* The backing bitmap is measured from this CSS box on mobile viewport changes. */
+#journey{overflow:hidden}#cosmos{display:block;max-width:none;max-height:none}

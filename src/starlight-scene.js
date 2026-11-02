@@ -1,3 +1,4 @@
+export {canvasMetrics} from '../lib/canvas-sizing.mjs';
 export {drawCapsuleGlow,capsuleGlowFrame,isPointInCapsule} from './capsule-glow.js';
 import { createStarField, projectStar, infallGeometry, projectInfallStar } from '../lib/starfield-motion.mjs';
 export { createStarField, projectStar, infallGeometry, projectInfallStar };

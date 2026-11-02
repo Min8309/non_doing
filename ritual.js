@@ -11,7 +11,7 @@ const cosmos=document.getElementById('cosmos'),space=cosmos.getContext('2d');
 let capsule='star',thought='',running=false,started=0,ritualFrame=null,ritualDeadline=null,cueFade=null,cueKey='',cw=0,ch=0,ritualBus=null,droneNodes=[],completionParticles=[],ritualGeneration=0;
 let capsuleHover=0,glowLastFrame=0,glowTouchTimer=null,glowPointer={x:-10000,y:-10000};
 function resetCapsuleGlow(){clearTimeout(glowTouchTimer);capsuleHover=0;glowLastFrame=0;glowPointer={x:-10000,y:-10000};}
-function setGlowPointer(event){if(!running)return;if(event.target.closest('button,select,input,textarea')){glowPointer={x:-10000,y:-10000};return;}clearTimeout(glowTouchTimer);const rect=cosmos.getBoundingClientRect();glowPointer={x:event.clientX-rect.left,y:event.clientY-rect.top};}
+function setGlowPointer(event){if(!running)return;if(event.target.closest('button,select,input,textarea')){glowPointer={x:-10000,y:-10000};return;}clearTimeout(glowTouchTimer);const rect=cosmos.getBoundingClientRect();glowPointer={x:(event.clientX-rect.left)*(cw/rect.width),y:(event.clientY-rect.top)*(ch/rect.height)};}
 journey.addEventListener('pointermove',setGlowPointer);
 journey.addEventListener('pointerdown',setGlowPointer);
 journey.addEventListener('pointerup',event=>{if(event.pointerType==='touch')glowTouchTimer=setTimeout(()=>{glowPointer={x:-10000,y:-10000}},600)});
@@ -22,8 +22,34 @@ let starInfall=false;
 const blackHoleCopy={ko:{subs:["별빛이 작은 원을 향해 천천히 흐릅니다.","숨을 참는 게 불편하면 자연스럽게 쉬세요.","생각도 별빛과 함께 고요 속으로 흘려보내요."],closing:"작아지는 원 속으로 생각을 가만히 내려놓아요.",done:"생각이 고요 속으로 스며들었어요.",doneSub:"다 비우지 못해도 괜찮아요.<br>잠시 쉬어 간 것만으로도 충분해요.",label:"별빛이 작아지는 블랙홀로 흐르는 60초 우주 호흡"},en:{subs:["Watch the stars drift slowly into the little circle.","If holding your breath feels uncomfortable, breathe naturally.","Let your thought follow the starlight into stillness."],closing:"Let your thought settle into the shrinking circle.",done:"Your thought settles into stillness.",doneSub:"It’s okay if your mind is not completely clear.<br>Taking a moment to rest is enough.",label:"A 60 second space journey with stars flowing into a shrinking black hole"}};
 let starField=[],starFieldSeed=crypto.getRandomValues(new Uint32Array(1))[0];
 function ritualTranslate(){const c=ritualCopy[language];const ids={openRitual:'entry',ritualTitle:'title',ritualIntro:'intro',starMode:'star',pebbleMode:'pebble',beginRitual:'start',ritualPrivacy:'privacy',leaveJourney:'leave',doneTitle:'done',doneSub:'doneSub',returnVeranda:'return'};for(const [id,key]of Object.entries(ids))document.getElementById(id).innerHTML=c[key];thoughtInput.placeholder=c.placeholder;thoughtInput.setAttribute('aria-label',c.title);document.getElementById('closeRitual').setAttribute('aria-label',c.close);document.getElementById('journeySound').textContent=c[soundOn?'off':'on'];document.getElementById('journeySound').setAttribute('aria-pressed',String(soundOn));document.querySelector('.modes').setAttribute('aria-label',language==='ko'?'생각을 담을 모양':'Thought capsule');journey.setAttribute('aria-label',capsule==='pebble'?pondCopy[language].label:(language==='ko'?'별들이 천천히 흐르는 고요한 우주여행과 60초 호흡':'A calm journey through slowly moving stars with 60 seconds of breathing'));if(capsule==='star'&&starInfall){journey.setAttribute('aria-label',blackHoleCopy[language].label);document.getElementById('doneTitle').textContent=blackHoleCopy[language].done;document.getElementById('doneSub').innerHTML=blackHoleCopy[language].doneSub;}if(capsule==='pebble'){document.getElementById('doneTitle').textContent=pondCopy[language].done;document.getElementById('doneSub').innerHTML=pondCopy[language].doneSub;}if(running)updateCue(Math.min((Date.now()-started)/1000,60),true)}
-function resizeCosmos(){cw=innerWidth;ch=innerHeight;const dpr=Math.min(devicePixelRatio||1,2);cosmos.width=Math.round(cw*dpr);cosmos.height=Math.round(ch*dpr);space.setTransform(dpr,0,0,dpr,0,0);starField=QuietStarfield.createStarField(cw,ch,starFieldSeed);starInfall=cw<=700||(matchMedia('(pointer: coarse)').matches&&Math.min(cw,ch)<=700);journey.classList.toggle('blackhole-mode',capsule==='star'&&starInfall);if(running)ritualTranslate()}
-window.addEventListener('resize',resizeCosmos);
+let cosmosResizeFrame=null,starFieldBuiltSeed=null;
+function resizeCosmos(){
+ const rect=cosmos.getBoundingClientRect();
+ const metrics=QuietStarfield.canvasMetrics(rect.width,rect.height,devicePixelRatio||1);
+ if(!metrics)return;
+ const changed=cw!==metrics.width||ch!==metrics.height||cosmos.width!==metrics.pixelWidth||cosmos.height!==metrics.pixelHeight||starFieldBuiltSeed!==starFieldSeed;
+ if(!changed)return;
+ cw=metrics.width;ch=metrics.height;
+ if(cosmos.width!==metrics.pixelWidth)cosmos.width=metrics.pixelWidth;
+ if(cosmos.height!==metrics.pixelHeight)cosmos.height=metrics.pixelHeight;
+ // Compensate fractional CSS pixels independently so one logical pixel has
+ // exactly the same displayed size horizontally and vertically.
+ space.setTransform(metrics.scaleX,0,0,metrics.scaleY,0,0);
+ starField=QuietStarfield.createStarField(cw,ch,starFieldSeed);starFieldBuiltSeed=starFieldSeed;
+ starInfall=cw<=700||(matchMedia('(pointer: coarse)').matches&&Math.min(cw,ch)<=700);
+ journey.classList.toggle('blackhole-mode',capsule==='star'&&starInfall);
+ if(running){ritualTranslate();drawSpace(Math.min((Date.now()-started)/1000,60));}
+ else if(!journey.hidden)drawSpace(60);
+}
+function queueCosmosResize(){
+ if(journey.hidden||cosmosResizeFrame!==null)return;
+ cosmosResizeFrame=requestAnimationFrame(()=>{cosmosResizeFrame=null;resizeCosmos()});
+}
+const cosmosSizeObserver=typeof ResizeObserver==='function'?new ResizeObserver(queueCosmosResize):null;
+cosmosSizeObserver?.observe(journey);
+window.addEventListener('resize',queueCosmosResize);
+window.addEventListener('orientationchange',queueCosmosResize);
+window.visualViewport?.addEventListener('resize',queueCosmosResize);
 document.getElementById('language').addEventListener('click',ritualTranslate);
 document.getElementById('openRitual').addEventListener('click',()=>{if(window.requestRoomSeat){window.requestRoomSeat();return;}ritualTranslate();ritualDialog.showModal()});
 function clearWords(){thought='';thoughtInput.value='';document.getElementById('thoughtCount').textContent='0 / 140';document.getElementById('beginRitual').disabled=true}
@@ -87,7 +113,7 @@ function drawSpace(elapsed){
 }
 function renderRitual(){if(!running)return;const elapsed=Math.min((Date.now()-started)/1000,60);document.getElementById('seconds').textContent=`${Math.ceil(60-elapsed)}s`;updateCue(elapsed);drawSpace(elapsed);if(elapsed>=60){finishRitual();return}ritualFrame=requestAnimationFrame(renderRitual)}
 function finishRitual(){if(!running)return;running=false;resetCapsuleGlow();clearTimeout(ritualDeadline);clearTimeout(cueFade);cancelAnimationFrame(ritualFrame);clearWords();drawSpace(60);document.getElementById('seconds').textContent='0s';document.getElementById('journeyTop').hidden=true;document.getElementById('breatheSub').hidden=true;if(soundOn){[1046.5,1318.51,1567.98,2093].forEach((f,i)=>tone(f,i*.17,1.8,.07))}const generation=ritualGeneration;completionParticles=Array.from({length:38},()=>({a:Math.random()*Math.PI*2,s:10+Math.random()*55}));const endStart=performance.now();function scatter(now){if(generation!==ritualGeneration)return;const t=(now-endStart)/1000;drawSpace(60);if(!reduced.matches&&t<1.8){if(capsule==='pebble'){drawPondRelease(t);}else if(starInfall){QuietStarfield.drawBlackHoleRelease(space,cw,ch,t);}else{space.fillStyle='#c6deeb';space.globalAlpha=Math.max(0,1-t/1.8);for(const p of completionParticles){space.beginPath();space.arc(cw/2+Math.cos(p.a)*p.s*t,ch*.4+Math.sin(p.a)*p.s*t,1.2,0,Math.PI*2);space.fill()}space.globalAlpha=1;}ritualFrame=requestAnimationFrame(scatter)}else{completionParticles=[];stopDrone();document.getElementById('ritualDone').hidden=false;document.getElementById('doneTitle').focus()}}ritualFrame=requestAnimationFrame(scatter)}
-function leaveRitual(){resetCapsuleGlow();ritualGeneration++;running=false;clearTimeout(ritualDeadline);clearTimeout(cueFade);cancelAnimationFrame(ritualFrame);stopDrone();clearWords();completionParticles=[];space.clearRect(0,0,cw,ch);journey.hidden=true;document.getElementById('sanctuary').inert=false;document.getElementById('viewToggle').inert=false;document.getElementById('openRitual').inert=false;document.getElementById('openRitual').focus()}
+function leaveRitual(){if(cosmosResizeFrame!==null){cancelAnimationFrame(cosmosResizeFrame);cosmosResizeFrame=null;}resetCapsuleGlow();ritualGeneration++;running=false;clearTimeout(ritualDeadline);clearTimeout(cueFade);cancelAnimationFrame(ritualFrame);stopDrone();clearWords();completionParticles=[];space.clearRect(0,0,cw,ch);journey.hidden=true;document.getElementById('sanctuary').inert=false;document.getElementById('viewToggle').inert=false;document.getElementById('openRitual').inert=false;document.getElementById('openRitual').focus()}
 document.getElementById('leaveJourney').addEventListener('click',leaveRitual);document.getElementById('returnVeranda').addEventListener('click',leaveRitual);document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!journey.hidden){event.preventDefault();leaveRitual()}});
 document.getElementById('ritualForm').addEventListener('submit',event=>{event.preventDefault();if(!thoughtInput.value.trim())return;const text=thoughtInput.value.trim();ritualDialog.close();clearWords();thought=text;thoughtInput.blur();resetCapsuleGlow();running=true;ritualGeneration++;started=Date.now();starFieldSeed=crypto.getRandomValues(new Uint32Array(1))[0];cueKey='';journey.hidden=false;journey.classList.toggle('pond-mode',capsule==='pebble');document.getElementById('sanctuary').inert=true;document.getElementById('viewToggle').inert=true;document.getElementById('openRitual').inert=true;document.getElementById('ritualDone').hidden=true;document.getElementById('journeyTop').hidden=false;document.getElementById('breatheSub').hidden=false;resizeCosmos();ritualTranslate();setupRitualSound(true);renderRitual();ritualDeadline=setTimeout(finishRitual,60000);document.getElementById('leaveJourney').focus()});
 document.addEventListener('visibilitychange',()=>{if(!running)return;if(document.hidden)cancelAnimationFrame(ritualFrame);else renderRitual()});
